@@ -2,13 +2,9 @@
 
 function addShareButton(chatThreadDiv) {
   var threadId = chatThreadDiv.getAttribute("data-local-topic-id")
-  console.log(threadId)
   var actualDiv = chatThreadDiv.getElementsByTagName("div")[1]
-  console.log(actualDiv)
   var followButtonDiv = actualDiv.childNodes[0]
-  console.log(followButtonDiv)
   var followButtonClassName = followButtonDiv.getElementsByTagName("div")[0].getElementsByTagName("span")[2].getElementsByTagName("div")[0].className
-  console.log(followButtonClassName)
   var shareButton = document.createElement("div");
   shareButton.className = followButtonClassName
   shareButton.style.right = "100px"
@@ -23,9 +19,7 @@ function addShareButton(chatThreadDiv) {
   shareButton.appendChild(shareLink)
 
   shareLink.addEventListener("click", function(event) {
-    console.log(event)
     const url = event.target.parentNode.getAttribute("data-link")
-    console.log(url)
     openModal(url);
   })
   shareButton.setAttribute("data-link", roomURL)
@@ -58,15 +52,48 @@ function modalClose() {
   element.parentNode.removeChild(element);
 }
 
-addShareButtons() {
+function addShareButtons() {
   var list = Array.from(document.getElementsByTagName("c-wiz"));
   var threadList = list.filter(function(elem) { return (elem.hasAttribute("data-local-topic-id") && elem.hasAttribute("data-is-user-topic")) && !elem.hasAttribute("data-gchat-share-button-created")  })
 
-  threadList.forEach(addShareButton)
+  try {
+    threadList.forEach(addShareButton)
+  } catch(e) {
+    console.log(e)
+  }
 }
 
 // on load
 addShareButtons()
 // on scrolll
-mainChatDiv = list.filter(function(elem) { return elem.getAttribute("role") == "main"})[0]
+function addTheOnScrollEventHandler() {
+  mainChatDiv = document.querySelector('[role="main"] div')
 
+  var isScrolling;
+  mainChatDiv.addEventListener('scroll', function(){
+    window.clearTimeout( isScrolling );
+    // Set a timeout to run after scrolling ends
+    isScrolling = setTimeout(function() {
+
+      // Run the callback
+      console.log( 'Scrolling has stopped.' );
+      addShareButtons()
+
+    }, 250);
+  })
+}
+addTheOnScrollEventHandler()
+// on group link click
+links = document.querySelectorAll('*[id^="space"]')
+links.forEach(addClickEvent)
+
+function addClickEvent(link) {
+  link.addEventListener('click', function() {
+    setTimeout(function() {
+      // Run the callback
+      addShareButtons()
+      addTheOnScrollEventHandler()
+    }, 2500);
+
+  })
+}
